@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 
 	"autoescuelagmc-backend/internal/models"
@@ -24,7 +25,7 @@ func NewContactRepository(db *sql.DB) *ContactRepository {
 func (r *ContactRepository) SaveContact(ctx context.Context, contact models.ContactRequest) (int, error) {
     query := `
         INSERT INTO contact_requests (full_name, email, phone_number, service_type, message, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES (?, ?, ?, ?, ?, ?)
         RETURNING id
     `
     
@@ -41,4 +42,44 @@ func (r *ContactRepository) SaveContact(ctx context.Context, contact models.Cont
     ).Scan(&id)
     
     return id, err
+}
+
+func (r *ContactRepository) GetAllContacts(ctx context.Context) ([]models.ContactRequest, error) {
+    query := `SELECT id, full_name, email, phone_number, service_type, message, created_at FROM contact_requests ORDER BY created_at DESC`
+    
+    rows, err := r.db.QueryContext(ctx, query)
+
+    if err != nil {
+        log.Printf("ERROR en GetAllContacts: %+v", err)
+
+        return nil, err
+    }
+
+    defer rows.Close()
+    
+    var contacts []models.ContactRequest
+    
+    for rows.Next() {
+        var contact models.ContactRequest
+        
+        if err := rows.Scan(
+            &contact.ID,
+            &contact.FullName,
+            &contact.Email,
+            &contact.PhoneNumber,
+            &contact.ServiceType,
+            &contact.Message,
+            &contact.CreatedAt,
+        ); err != nil {
+            return nil, err
+        }
+        
+        contacts = append(contacts, contact)
+    }
+    
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+    
+    return contacts, nil
 }

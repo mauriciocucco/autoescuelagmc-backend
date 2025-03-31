@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+
+	"github.com/joho/godotenv"
 
 	"autoescuelagmc-backend/internal/app"
 	"autoescuelagmc-backend/internal/database"
@@ -13,11 +16,24 @@ import (
 )
 
 func main() {
+    fmt.Println("Iniciando aplicación...")
     // En una implementación real, estas configuraciones vendrían de variables de entorno
     // o de un archivo de configuración
+
+    // Cargar variables de entorno desde .env
+    if err := godotenv.Load(); err != nil {
+        log.Println("No se pudo cargar el archivo .env:", err)
+    }
     
     // Configuración de la base de datos
     dbConfig := database.Config{
+        // Set Turso as enabled
+        TursoEnabled:   true,
+        TursoDbPath:    getEnv("TURSO_DB_PATH", "./data/local.db"),
+        TursoPrimaryUrl: getEnv("TURSO_PRIMARY_URL", "https://autoescuelagmc-maurisc.aws-us-east-1.turso.io"),
+        TursoAuthToken:  getEnv("TURSO_AUTH_TOKEN", "your-auth-token"),
+        
+        // Keep PostgreSQL config for backward compatibility
         Host:     getEnv("DB_HOST", "localhost"),
         Port:     getEnvAsInt("DB_PORT", 5432),
         User:     getEnv("DB_USER", "postgres"),
@@ -69,20 +85,24 @@ func main() {
 // getEnv obtiene una variable de entorno o devuelve un valor por defecto
 func getEnv(key, defaultValue string) string {
     value := os.Getenv(key)
+
     if value == "" {
         return defaultValue
     }
+
     return value
 }
 
 // getEnvAsInt obtiene una variable de entorno como entero
 func getEnvAsInt(key string, defaultValue int) int {
     valueStr := os.Getenv(key)
+
     if valueStr == "" {
         return defaultValue
     }
     
     value, err := strconv.Atoi(valueStr)
+    
     if err != nil {
         return defaultValue
     }

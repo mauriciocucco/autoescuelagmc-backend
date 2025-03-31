@@ -41,16 +41,17 @@ func NewApp(config Config) *App {
 // Start inicia la aplicación
 func (a *App) Start() error {
     // Configurar base de datos
-    db, err := database.NewPostgresDB(a.config.DB)
+    db, err := database.NewDB(a.config.DB)
+    
     if err != nil {
         return err
     }
     a.db = db
     
     // Crear tablas si no existen
-    if err := database.CreateTablesIfNotExist(a.db); err != nil {
-        return err
-    }
+    // if err := database.CreateTablesIfNotExist(a.db); err != nil {
+    //     return err
+    // }
     
     // Inicializar repositorios
     contactRepo := repository.NewContactRepository(a.db)
@@ -79,7 +80,7 @@ func (a *App) Start() error {
     api := a.router.Group("/api")
     {
         api.POST("/contact", contactHandler.CreateContact)
-        // Aquí puedes añadir más rutas según necesites
+        api.GET("/contacts", contactHandler.GetAllContacts)
     }
     
     // Iniciar servidor HTTP

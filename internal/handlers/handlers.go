@@ -57,3 +57,14 @@ func (h *ContactHandler) CreateContact(c *gin.Context) {
         "message": "Solicitud de contacto recibida correctamente",
     })
 }
+
+func (h *ContactHandler) GetAllContacts(c *gin.Context) {
+    contacts, err := h.contactRepo.GetAllContacts(c.Request.Context())
+    
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving contacts"})
+        return
+    }
+    
+    c.JSON(http.StatusOK, contacts)
+}

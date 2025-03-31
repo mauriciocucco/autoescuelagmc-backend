@@ -1,14 +1,21 @@
 module autoescuelagmc-backend
 
-go 1.18
+go 1.24
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/tursodatabase/libsql-client-go v0.0.0-20240902231107-85af5b9d094d
 	gopkg.in/mail.v2 v2.3.1
 )
 
-require github.com/chenzhuoyu/iasm v0.9.0 // indirect
+require (
+	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	github.com/chenzhuoyu/iasm v0.9.0 // indirect
+	github.com/coder/websocket v1.8.12 // indirect
+	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
+)
 
 require (
 	// Dependencias indirectas que Gin necesita
